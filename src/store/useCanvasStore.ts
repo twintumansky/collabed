@@ -6,11 +6,11 @@ type Store = {
 };
 
 const initialState: CanvasState = {
-    layers: {},
-    camera: { x:0, y:0},
     currentlySelectedLayerId: null,
+    layers: {},
+    camera: { x: 0, y: 0 },
 };
 
-export const useCanvasStore = create<Store>((set) => ({
+export const useCanvasStore = create<Store>(() => ({
     canvasState: initialState,
 }));
