@@ -4,21 +4,21 @@ import type { CanvasState, Layer } from  '@/types';
 
 type Store = {
     canvasState: CanvasState;
-    setCurrentlySelectedLayer: ( layerId: string | null) => void;
+    setSelectedLayer: ( layerId: string | null) => void;
     insertLayer: ( layer: Layer ) => void;
 };
 
 const initialState: CanvasState = {
-    currentlySelectedLayerId: null,
+    selectedLayerId: null,
     layers: {},
     camera: { x: 0, y: 0 },
 };
 
 export const useCanvasStore = create<Store>((set) => ({
     canvasState: initialState,
-    setCurrentlySelectedLayer: (layerId) => {
+    setSelectedLayer: (layerId) => {
         set( (store) => ({
-            canvasState: {...store.canvasState, currentlySelectedLayerId: layerId},
+            canvasState: {...store.canvasState, selectedLayerId: layerId},
         }))
     },
 
@@ -29,7 +29,7 @@ export const useCanvasStore = create<Store>((set) => ({
                 canvasState: {
                     ...store.canvasState, 
                     layers: newLayers,
-                    currentlySelectedLayerId: layer.id,
+                    selectedLayerId: layer.id,
                 },
             };
         }

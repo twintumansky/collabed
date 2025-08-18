@@ -38,7 +38,7 @@ export type Point = {
 
 //represents the state of the entire canvas
 export type CanvasState = {
-    currentlySelectedLayerId: string | null;
+    selectedLayerId: string | null;
     layers: Record<string, Layer>;
     camera: Camera;
 };
