@@ -31,7 +31,7 @@ export type RectangleLayer = {
 export type Layer = RectangleLayer;
 
 //represents a specific point on the canvas
-export type coordinate = {
+export type Point = {
     x: number;
     y: number;
 };

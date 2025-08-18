@@ -1,11 +1,11 @@
-import { nanoid } from "nanoid";
+
 import { create } from 'zustand';
-import type { CanvasState, Layer, LayerType } from '@/types';
+import type { CanvasState, Layer } from  '@/types';
 
 type Store = {
     canvasState: CanvasState;
     setCurrentlySelectedLayer: ( layerId: string | null) => void;
-    insertLayer: ( layerType: LayerType, position: { x: number, y: number} ) => void;
+    insertLayer: ( layer: Layer ) => void;
 };
 
 const initialState: CanvasState = {
@@ -22,25 +22,14 @@ export const useCanvasStore = create<Store>((set) => ({
         }))
     },
 
-    insertLayer: (layerType, position) => {
+    insertLayer: (layer) => {
         set( (store) => {
-            const newLayerId = nanoid();
-            const newLayer: Layer = {
-                id: newLayerId,
-                type: layerType,
-                x: position.x,
-                y: position.y,
-                height: 100, 
-                width: 100,
-                fill: { r: 51, g: 153, b: 255 },
-            };
-
-            const newLayers = {...store.canvasState.layers, [newLayerId]: newLayer};
+            const newLayers = {...store.canvasState.layers, [layer.id]: layer};
             return {
                 canvasState: {
                     ...store.canvasState, 
                     layers: newLayers,
-                    currentlySelectedLayerId: newLayerId,
+                    currentlySelectedLayerId: layer.id,
                 },
             };
         }
