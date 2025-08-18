@@ -41,12 +41,12 @@ export const Canvas = () => {
 
     const newRectangleLayer: RectangleLayer = {
       id: nanoid(),
-      type: "Rectangle", // This is now a fixed, literal string
+      type: "Rectangle",
       x: Math.min(drawingOrigin.x, endPoint.x),
       y: Math.min(drawingOrigin.y, endPoint.y),
       width,
       height,
-      fill: { r: 51, g: 153, b: 255 } as Color,
+      fill: { r: 243, g: 244, b: 246 } as Color,
     };
 
     insertLayer(newRectangleLayer);
