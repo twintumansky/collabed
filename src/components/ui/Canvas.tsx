@@ -23,6 +23,7 @@ export const Canvas = () => {
 
     const originPoint = getCoordinates(e, canvasState.camera);
     setDrawingOrigin(originPoint);
+    setCanvasInteractionMode("DRAWING");
   };
 
   const handlePointerMove = (e: React.PointerEvent) => {
@@ -34,36 +35,38 @@ export const Canvas = () => {
   };
 
   const handlePointerUp = (e: React.PointerEvent) => {
-    if (!drawingOrigin || selectedTool !== "Rectangle") {
-      setDrawingOrigin(null);
-      return;
-    }
-
     const endPoint = getCoordinates(e, canvasState.camera);
-    const width = Math.abs(endPoint.x - drawingOrigin.x);
-    const height = Math.abs(endPoint.y - drawingOrigin.y);
 
-    if (width < 5 || height < 5) {
-      setDrawingOrigin(null);
-      return;
+    switch (canvasState.mode) {
+      case "DRAWING":
+        if (drawingOrigin) {
+          const width = Math.abs(endPoint.x - drawingOrigin.x);
+          const height = Math.abs(endPoint.y - drawingOrigin.y);
+
+          if (width > 5 && height > 5) {
+            const newRectangleLayer: RectangleLayer = {
+              id: nanoid(),
+              type: "Rectangle",
+              x: Math.min(drawingOrigin.x, endPoint.x),
+              y: Math.min(drawingOrigin.y, endPoint.y),
+              width,
+              height,
+              fill: { r: 243, g: 244, b: 246 },
+            };
+            insertLayer(newRectangleLayer);
+          }
+        }
+        setDrawingOrigin(null);
+        setCanvasInteractionMode("IDLE");
+        break;
+
+      case "TRANSLATING":
+        setCanvasInteractionMode("IDLE");
+        break;
+
+      default:
+        break;
     }
-
-    const newRectangleLayer: RectangleLayer = {
-      id: nanoid(),
-      type: "Rectangle",
-      x: Math.min(drawingOrigin.x, endPoint.x),
-      y: Math.min(drawingOrigin.y, endPoint.y),
-      width,
-      height,
-      fill: { r: 243, g: 244, b: 246 } as Color,
-    };
-
-    if (canvasState.mode === "TRANSLATING") {
-      setCanvasInteractionMode("IDLE");
-    }
-
-    insertLayer(newRectangleLayer);
-    setDrawingOrigin(null);
   };
 
   return (
