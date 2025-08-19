@@ -1,5 +1,8 @@
 //Defining the shape of data that our app will adhere to.
 
+//represents the different interaction modes of the canvas
+export type CanvasInteractionMode =  'IDLE' | 'DRAWING' | 'SELECTING' | 'TRANSLATING';
+
 //represents an RGB color
 export type Color = {
     r: number;
@@ -41,4 +44,5 @@ export type CanvasState = {
     selectedLayerId: string | null;
     layers: Record<string, Layer>;
     camera: Camera;
+    mode: CanvasInteractionMode;
 };
