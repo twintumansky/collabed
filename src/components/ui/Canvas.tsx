@@ -1,5 +1,6 @@
 import { useCanvasStore } from "@/store/useCanvasStore";
 import { useState } from "react";
+import { useStorage, useMutation } from "@/liveblocks.config";
 import { nanoid } from "nanoid";
 import type { LayerType, Camera, Point, RectangleLayer, Color } from "@/types";
 import { Layer } from "./Layer";
@@ -13,8 +14,33 @@ const getCoordinates = (e: React.PointerEvent, camera: Camera): Point => {
 };
 
 export const Canvas = () => {
-  const { canvasState, insertLayer, setCanvasInteractionMode, moveLayer } =
-    useCanvasStore(); //slicing the canvasState & insertLayer action method from the canvas store
+  // const { canvasState, insertLayer, setCanvasInteractionMode, moveLayer } =
+  //   useCanvasStore(); //slicing the canvasState & insertLayer action method from the canvas store
+  
+  //Reading from Liveblocks storage instead of zustand store
+  const layers = useStorage((root) => root.layers);
+
+  const insertLayer = useMutation((
+    mutation,
+    layerType: LayerType,
+    position: Point
+  ) => {
+    const { storage } = mutation;
+    const liveLayers = storage.get('layers');
+    const newLayerId = nanoid();
+    const newLayer: RectangleLayer = {
+      id: nanoid(),
+      type: "Rectangle",
+      x: Math.min(drawingOrigin.x, endPoint.x),
+      y: Math.min(drawingOrigin.y, endPoint.y),
+      width,
+      height,
+      fill: { r: 243, g: 244, b: 246 } as Color,
+    };
+  },
+  []
+  );
+
   const [drawingOrigin, setDrawingOrigin] = useState<Point | null>(null); //temporary drawing state local to the canvas component
   const [selectedTool, setSelectedTool] = useState<LayerType>("Rectangle"); //selected shape from toolbar component
 
@@ -51,7 +77,7 @@ export const Canvas = () => {
               y: Math.min(drawingOrigin.y, endPoint.y),
               width,
               height,
-              fill: { r: 243, g: 244, b: 246 },
+              fill: { r: 243, g: 244, b: 246 } as Color,
             };
             insertLayer(newRectangleLayer);
           }
