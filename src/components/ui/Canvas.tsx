@@ -1,4 +1,5 @@
 // import { useCanvasStore } from "@/store/useCanvasStore";
+import { LiveMap } from "@liveblocks/client";
 import { useState } from "react";
 import { useStorage, useMutation } from "@/liveblocks.config";
 import { nanoid } from "nanoid";
@@ -31,10 +32,18 @@ export const Canvas = () => {
   const insertLayer = useMutation((mutation, newLayer: RectangleLayer) => {
     const { storage } = mutation;
     const liveLayers = storage.get("layers");
-    if (liveLayers) {
+    if (!liveLayers) {
+      const newLayers = new LiveMap<string, Layer>();
+      newLayers.set(newLayer.id, newLayer);
+
+      storage.set("layers", newLayers);
+      storage.set("selectedLayerId", newLayer.id);
+      storage.set("camera", { x: 0, y: 0 }); // Initialize camera
+      storage.set("mode", "IDLE"); // Initialize mode
+    } else {
+      // If it already exists, just add the new layer
       liveLayers.set(newLayer.id, newLayer);
       storage.set("selectedLayerId", newLayer.id);
-      storage.set("mode", "IDLE");
     }
     // const newLayerId = nanoid();
     // const newLayer: RectangleLayer = {

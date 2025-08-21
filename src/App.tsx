@@ -13,7 +13,7 @@ const App: React.FC = () => {
   return (
     <LiveblocksProvider
       publicApiKey={
-        "pk_dev_7yctZNkRaVF3mZpc4UN_CIFoemNFz5qtrosHL75bX2W3YM2tKDD1iArIPa-gxfgd"
+        import.meta.env.VITE_LIVEBLOCKS_PUBLIC_KEY
       }
     >
       <RoomProvider id="my-room">
