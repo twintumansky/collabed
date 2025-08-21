@@ -16,7 +16,7 @@ const App: React.FC = () => {
         import.meta.env.VITE_LIVEBLOCKS_PUBLIC_KEY
       }
     >
-      <RoomProvider id="my-room">
+      <RoomProvider id="my-new-room-2">
         <ClientSideSuspense
           fallback={
             <div className="h-screen w-screen flex items-center justify-center">

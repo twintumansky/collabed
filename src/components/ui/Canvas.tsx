@@ -3,8 +3,8 @@ import { LiveMap } from "@liveblocks/client";
 import { useState } from "react";
 import { useStorage, useMutation } from "@/liveblocks.config";
 import { nanoid } from "nanoid";
-import type { LayerType, Camera, Point, RectangleLayer, Color } from "@/types";
-import { Layer } from "./Layer";
+import type { Layer, LayerType, Camera, Point, RectangleLayer, Color } from "@/types";
+import { Layer as LayerComponent } from "./Layer";
 
 const getCoordinates = (e: React.PointerEvent, camera: Camera): Point => {
   const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
@@ -147,7 +147,7 @@ export const Canvas = () => {
             <Layer key={layer.id} layer={layer} />
           ))} */}
           {Object.entries(layers).map(([layerId, layer]) => (
-            <Layer key={layerId} layer={layer} />
+            <LayerComponent key={layerId} layer={layer} />
           ))}
         </g>
       </svg>
