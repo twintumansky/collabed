@@ -1,4 +1,4 @@
-import { useCanvasStore } from "@/store/useCanvasStore";
+// import { useCanvasStore } from "@/store/useCanvasStore";
 import { useState } from "react";
 import { useStorage, useMutation } from "@/liveblocks.config";
 import { nanoid } from "nanoid";
@@ -14,86 +14,112 @@ const getCoordinates = (e: React.PointerEvent, camera: Camera): Point => {
 };
 
 export const Canvas = () => {
+  // const { canvasState, moveLayer} = useCanvasStore();
   // const { canvasState, insertLayer, setCanvasInteractionMode, moveLayer } =
   //   useCanvasStore(); //slicing the canvasState & insertLayer action method from the canvas store
-  
+
   //Reading from Liveblocks storage instead of zustand store
   const layers = useStorage((root) => root.layers);
+  const selectedLayerId = useStorage((root) => root.selectedLayerId);
+  const camera = useStorage((root) => root.camera);
+  const canvasMode = useStorage((root) => root.mode);
 
-  const insertLayer = useMutation((
-    mutation,
-    layerType: LayerType,
-    position: Point
-  ) => {
-    const { storage } = mutation;
-    const liveLayers = storage.get('layers');
-    const newLayerId = nanoid();
-    const newLayer: RectangleLayer = {
-      id: nanoid(),
-      type: "Rectangle",
-      x: Math.min(drawingOrigin.x, endPoint.x),
-      y: Math.min(drawingOrigin.y, endPoint.y),
-      width,
-      height,
-      fill: { r: 243, g: 244, b: 246 } as Color,
-    };
-  },
-  []
-  );
-
+  //Local UI state of the canvas component
   const [drawingOrigin, setDrawingOrigin] = useState<Point | null>(null); //temporary drawing state local to the canvas component
   const [selectedTool, setSelectedTool] = useState<LayerType>("Rectangle"); //selected shape from toolbar component
+
+  const insertLayer = useMutation((mutation, newLayer: RectangleLayer) => {
+    const { storage } = mutation;
+    const liveLayers = storage.get("layers");
+    if (liveLayers) {
+      liveLayers.set(newLayer.id, newLayer);
+      storage.set("selectedLayerId", newLayer.id);
+      storage.set("mode", "IDLE");
+    }
+    // const newLayerId = nanoid();
+    // const newLayer: RectangleLayer = {
+    //   id: nanoid(),
+    //   type: "Rectangle",
+    //   x: Math.min(drawingOrigin.x, endPoint.x),
+    //   y: Math.min(drawingOrigin.y, endPoint.y),
+    //   width,
+    //   height,
+    //   fill: { r: 243, g: 244, b: 246 } as Color,
+    // };
+  }, []);
+
+  const moveLayer = useMutation(
+    (mutation, position: Point) => {
+      const { storage } = mutation;
+      const liveLayers = storage.get("layers");
+      if (selectedLayerId) {
+        // Get the current layer's data
+        const layer = liveLayers.get(selectedLayerId);
+  
+        if (layer) {
+          // Create a new object with the updated position
+          const updatedLayer = { ...layer, x: position.x, y: position.y };
+          
+          // Use .set() on the parent LiveMap to replace the old layer
+          liveLayers.set(selectedLayerId, updatedLayer);
+        }
+      }
+    },
+    [selectedLayerId]
+  );
+
+  const setCanvasInteractionMode = useMutation((mutation, mode) => {
+    mutation.storage.set("mode", mode);
+  }, []);
 
   const handlePointerDown = (e: React.PointerEvent) => {
     if (selectedTool !== "Rectangle") return;
 
-    const originPoint = getCoordinates(e, canvasState.camera);
+    const originPoint = getCoordinates(e, camera!);
     setDrawingOrigin(originPoint);
     setCanvasInteractionMode("DRAWING");
   };
 
   const handlePointerMove = (e: React.PointerEvent) => {
     e.preventDefault();
-    if (canvasState.mode === "TRANSLATING" && canvasState.selectedLayerId) {
-      const updatedLayerPosition = getCoordinates(e, canvasState.camera);
-      moveLayer(canvasState.selectedLayerId, updatedLayerPosition);
+    if (canvasMode === "TRANSLATING" && selectedLayerId) {
+      const updatedLayerPosition = getCoordinates(e, camera!);
+      moveLayer(updatedLayerPosition);
     }
   };
 
   const handlePointerUp = (e: React.PointerEvent) => {
-    const endPoint = getCoordinates(e, canvasState.camera);
+    if (canvasMode === "DRAWING" && drawingOrigin) {
+      const endPoint = getCoordinates(e, camera!);
+      const width = Math.abs(endPoint.x - drawingOrigin.x);
+      const height = Math.abs(endPoint.y - drawingOrigin.y);
 
-    switch (canvasState.mode) {
-      case "DRAWING":
-        if (drawingOrigin) {
-          const width = Math.abs(endPoint.x - drawingOrigin.x);
-          const height = Math.abs(endPoint.y - drawingOrigin.y);
+      if (width > 5 && height > 5) {
+        insertLayer({
+          id: nanoid(),
+          type: "Rectangle",
+          x: Math.min(drawingOrigin.x, endPoint.x),
+          y: Math.min(drawingOrigin.y, endPoint.y),
+          width,
+          height,
+          fill: { r: 243, g: 244, b: 246 } as Color,
+        });
+      }
+    }
 
-          if (width > 5 && height > 5) {
-            const newRectangleLayer: RectangleLayer = {
-              id: nanoid(),
-              type: "Rectangle",
-              x: Math.min(drawingOrigin.x, endPoint.x),
-              y: Math.min(drawingOrigin.y, endPoint.y),
-              width,
-              height,
-              fill: { r: 243, g: 244, b: 246 } as Color,
-            };
-            insertLayer(newRectangleLayer);
-          }
-        }
-        setDrawingOrigin(null);
-        setCanvasInteractionMode("IDLE");
-        break;
-
-      case "TRANSLATING":
-        setCanvasInteractionMode("IDLE");
-        break;
-
-      default:
-        break;
+    setDrawingOrigin(null);
+    if (canvasMode === "TRANSLATING") {
+      setCanvasInteractionMode("IDLE");
     }
   };
+
+  if (!layers || !camera || !canvasMode) {
+    return (
+      <div className="h-screen w-screen flex items-center justify-center">
+        Loading...
+      </div>
+    );
+  }
 
   return (
     <main className="h-full w-full bg-neutral-100 touch-none">
@@ -104,12 +130,15 @@ export const Canvas = () => {
         onPointerUp={handlePointerUp}
       >
         <g
-          style={{
-            transform: `translate(${canvasState.camera.x}px, ${canvasState.camera.y}px)`,
-          }}
+        // style={{
+        //   transform: `translate(${canvasState.camera.x}px, ${canvasState.camera.y}px)`,
+        // }}
         >
-          {Object.values(canvasState.layers).map((layer) => (
+          {/* {Object.values(canvasState.layers).map((layer) => (
             <Layer key={layer.id} layer={layer} />
+          ))} */}
+          {Object.entries(layers).map(([layerId, layer]) => (
+            <Layer key={layerId} layer={layer} />
           ))}
         </g>
       </svg>

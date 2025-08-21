@@ -5,7 +5,7 @@ import {
   RoomProvider,
   ClientSideSuspense,
 } from "@liveblocks/react/suspense";
-import { Room } from "./Room";
+// import { Room } from "./Room";
 import { Canvas } from "@/components/ui/Canvas.tsx";
 import { Toolbar } from "@/components/ui/Toolbar.tsx";
 

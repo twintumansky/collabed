@@ -23,5 +23,8 @@ dist-ssr
 *.sln
 *.sw?
 
+# Local environment variables
+.env.local
+
 # Docs
 docs
