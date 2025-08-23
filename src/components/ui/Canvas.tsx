@@ -1,4 +1,3 @@
-// import { useCanvasStore } from "@/store/useCanvasStore";
 import { LiveMap } from "@liveblocks/client";
 import { useState } from "react";
 import { useStorage, useMutation } from "@/liveblocks.config";
@@ -15,23 +14,17 @@ const getCoordinates = (e: React.PointerEvent, camera: Camera): Point => {
 };
 
 export const Canvas = () => {
-  // const { canvasState, moveLayer} = useCanvasStore();
-  // const { canvasState, insertLayer, setCanvasInteractionMode, moveLayer } =
-  //   useCanvasStore(); //slicing the canvasState & insertLayer action method from the canvas store
 
   //Reading from Liveblocks storage instead of zustand store
   const layers = useStorage((root) => root.layers);
   const selectedLayerId = useStorage((root) => root.selectedLayerId);
   const camera = useStorage((root) => root.camera);
   const canvasMode = useStorage((root) => root.mode);
-
+  //Array.from method because it creates a new refrence evrytime the layers LiveMap changes
   const layersArray = useStorage((root) => Array.from(root.layers.values()));
 
-  console.log("Canvas state:", { layers, selectedLayerId, camera, canvasMode });
-  console.log("Layers array:", layersArray);
-
   //Local UI state of the canvas component
-  const [drawingOrigin, setDrawingOrigin] = useState<Point | null>(null); //temporary drawing state local to the canvas component
+  const [drawingOrigin, setDrawingOrigin] = useState<Point | null>(null);
   // const [selectedTool, setSelectedTool] = useState<LayerType>("Rectangle"); //selected shape from toolbar component
 
   const insertLayer = useMutation((mutation, newLayer: RectangleLayer) => {
@@ -41,21 +34,12 @@ export const Canvas = () => {
       liveLayers.set(newLayer.id, newLayer);
       storage.set("selectedLayerId", newLayer.id);
     } else {
+      //fallback option if initial storage layer is not loaded properly
       const newLayers = new LiveMap<string, Layer>();
       newLayers.set(newLayer.id, newLayer);
       storage.set("layers", newLayers);
       storage.set("selectedLayerId", newLayer.id);
     }
-    // const newLayerId = nanoid();
-    // const newLayer: RectangleLayer = {
-    //   id: nanoid(),
-    //   type: "Rectangle",
-    //   x: Math.min(drawingOrigin.x, endPoint.x),
-    //   y: Math.min(drawingOrigin.y, endPoint.y),
-    //   width,
-    //   height,
-    //   fill: { r: 243, g: 244, b: 246 } as Color,
-    // };
   }, []);
 
   const moveLayer = useMutation(
@@ -102,7 +86,6 @@ export const Canvas = () => {
       const endPoint = getCoordinates(e, camera!);
       const width = Math.abs(endPoint.x - drawingOrigin.x);
       const height = Math.abs(endPoint.y - drawingOrigin.y);
-      console.log("Drawing completed:", { width, height, drawingOrigin, endPoint });
 
       if (width > 5 && height > 5) {
         const newLayer = {
@@ -114,8 +97,6 @@ export const Canvas = () => {
           height,
           fill: { r: 243, g: 244, b: 246 } as Color,
         };
-        
-        console.log("Inserting layer:", newLayer);
         insertLayer(newLayer);
       }
     }
@@ -127,7 +108,7 @@ export const Canvas = () => {
   if (!layers || !camera || !canvasMode) {
     return (
       <div className="h-screen w-screen flex items-center justify-center">
-        Loading...
+        <em>Your canvas is Loading...</em>
       </div>
     );
   }
@@ -145,9 +126,6 @@ export const Canvas = () => {
         //   transform: `translate(${canvasState.camera.x}px, ${canvasState.camera.y}px)`,
         // }}
         >
-          {/* {Object.values(canvasState.layers).map((layer) => (
-            <Layer key={layer.id} layer={layer} />
-          ))} */}
           {layersArray!.map((layer) => (
             <LayerComponent key={layer.id} layer={layer} />
           ))}
