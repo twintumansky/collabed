@@ -66,11 +66,26 @@ export const Canvas = () => {
     mutation.storage.set("mode", mode);
   }, []);
 
+  const updateCamera = useMutation(
+    (mutation, newPosition: Point) => {
+      mutation.storage.set("camera", newPosition);
+    },
+    []
+  );
+
   const handlePointerDown = (e: React.PointerEvent) => {
-    if (activeTool === "Rectangle") {
-      const originPoint = getCoordinates(e, camera!);
-      setDrawingOrigin(originPoint);
-      setCanvasInteractionMode("DRAWING");
+    const originPoint = getCoordinates(e, camera!);
+    switch (activeTool) {
+      case "Rectangle":
+        setDrawingOrigin(originPoint);
+        setCanvasInteractionMode("DRAWING");
+        break;
+      
+      // If the selection tool is active, clicking the background
+      // could clear the selection in the future. For now, it does nothing.
+      case "Selecting":
+        // TODO: Clear selection
+        break;
     }
   };
 
@@ -106,6 +121,16 @@ export const Canvas = () => {
     setCanvasInteractionMode("IDLE");
   };
 
+  const handleWheel = (e: React.WheelEvent) => {
+    e.preventDefault(); // Prevent the whole page from scrolling
+    
+    // e.deltaX and e.deltaY represent the scroll amount
+    updateCamera({
+      x: camera!.x - e.deltaX,
+      y: camera!.y - e.deltaY,
+    });
+  };
+
   if (!layers || !camera || !canvasMode) {
     return (
       <div className="h-screen w-screen flex items-center justify-center">
@@ -121,11 +146,10 @@ export const Canvas = () => {
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
+        onWheel={handleWheel}
       >
         <g
-        // style={{
-        //   transform: `translate(${canvasState.camera.x}px, ${canvasState.camera.y}px)`,
-        // }}
+        style={{ transform: `translate(${camera!.x}px, ${camera!.y}px)` }}
         >
           {layersArray!.map((layer) => (
             <LayerComponent key={layer.id} layer={layer} />
