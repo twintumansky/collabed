@@ -4,6 +4,7 @@ import { useStorage, useMutation } from "@/liveblocks.config";
 import { nanoid } from "nanoid";
 import type { Layer, Camera, Point, RectangleLayer, Color } from "@/types";
 import { Layer as LayerComponent } from "./Layer";
+import { useUIStore } from "@/store/useUIStore";
 
 const getCoordinates = (e: React.PointerEvent, camera: Camera): Point => {
   const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
@@ -14,7 +15,6 @@ const getCoordinates = (e: React.PointerEvent, camera: Camera): Point => {
 };
 
 export const Canvas = () => {
-
   //Reading from Liveblocks storage instead of zustand store
   const layers = useStorage((root) => root.layers);
   const selectedLayerId = useStorage((root) => root.selectedLayerId);
@@ -25,7 +25,7 @@ export const Canvas = () => {
 
   //Local UI state of the canvas component
   const [drawingOrigin, setDrawingOrigin] = useState<Point | null>(null);
-  // const [selectedTool, setSelectedTool] = useState<LayerType>("Rectangle"); //selected shape from toolbar component
+  const activeTool = useUIStore((state) => state.activeTool);
 
   const insertLayer = useMutation((mutation, newLayer: RectangleLayer) => {
     const { storage } = mutation;
@@ -49,11 +49,11 @@ export const Canvas = () => {
       if (selectedLayerId) {
         // Get the current layer's data
         const layer = liveLayers.get(selectedLayerId);
-  
+
         if (layer) {
           // Create a new object with the updated position
           const updatedLayer = { ...layer, x: position.x, y: position.y };
-          
+
           // Use .set() on the parent LiveMap to replace the old layer
           liveLayers.set(selectedLayerId, updatedLayer);
         }
@@ -67,10 +67,11 @@ export const Canvas = () => {
   }, []);
 
   const handlePointerDown = (e: React.PointerEvent) => {
-    // if (selectedTool !== "Rectangle") return;
-    const originPoint = getCoordinates(e, camera!);
-    setDrawingOrigin(originPoint);
-    setCanvasInteractionMode("DRAWING");
+    if (activeTool === "Rectangle") {
+      const originPoint = getCoordinates(e, camera!);
+      setDrawingOrigin(originPoint);
+      setCanvasInteractionMode("DRAWING");
+    }
   };
 
   const handlePointerMove = (e: React.PointerEvent) => {
