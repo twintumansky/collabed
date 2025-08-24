@@ -7,6 +7,6 @@ type UIState = {
 };
 
 export const useUIStore = create<UIState>((set) => ({
-  activeTool: "Rectangle", //Default tool
+  activeTool: "Selection", //Default tool
   setActiveTool: (tool) => set({ activeTool: tool }),
 }));

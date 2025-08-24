@@ -83,7 +83,7 @@ export const Canvas = () => {
       
       // If the selection tool is active, clicking the background
       // could clear the selection in the future. For now, it does nothing.
-      case "Selecting":
+      case "Selection":
         // TODO: Clear selection
         break;
     }
