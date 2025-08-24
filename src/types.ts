@@ -1,4 +1,4 @@
-//Defining the shape of data that our app will adhere to.
+//Defining the shape of data that our app will conform to.
 
 //represents the different interaction modes of the canvas
 export type CanvasInteractionMode =

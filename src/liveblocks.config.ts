@@ -24,6 +24,14 @@ type Storage = {
   mode: CanvasInteractionMode,
 };
 
+declare global {
+  interface Liveblocks {
+    Presence: {
+      cursor: { x: number; y: number } | null;
+    };
+  }
+}
+
 // Export the fully-typed hooks from this file
 export const {
   RoomProvider,
