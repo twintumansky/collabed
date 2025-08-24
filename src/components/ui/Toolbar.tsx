@@ -1,7 +1,8 @@
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Cursor02Icon,
-  SquareIcon,
+  Txt02Icon,
+  StickyNote03Icon,
 } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
 import { useUIStore } from "@/store/useUIStore";
@@ -23,19 +24,33 @@ export const Toolbar = () => {
           strokeWidth={1.5}
         />
       </Button>
+      <ShapesMenu />
       <Button
-        variant={activeTool === "Rectangle" ? "boardActive" : "board"}
+        variant={activeTool === "Text" ? "boardActive" : "board"}
         size="icon"
-        onClick={() => setActiveTool("Rectangle")}
+        onClick={() => setActiveTool("Text")}
       >
         <HugeiconsIcon
-          icon={SquareIcon}
+          icon={Txt02Icon}
           size={24}
           color="currentColor"
           strokeWidth={1.5}
         />
       </Button>
-      <ShapesMenu />
+      <Button
+        variant={activeTool === "Note" ? "boardActive" : "board"}
+        size="icon"
+        onClick={() => setActiveTool("Note")}
+      >
+        <HugeiconsIcon
+          icon={StickyNote03Icon}
+          size={24}
+          color="currentColor"
+          strokeWidth={1.5}
+        />
+      </Button>
     </div>
   );
 };
+
+
