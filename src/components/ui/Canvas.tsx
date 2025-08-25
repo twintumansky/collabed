@@ -1,5 +1,5 @@
 import { LiveMap } from "@liveblocks/client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useStorage, useMutation } from "@/liveblocks.config";
 import { nanoid } from "nanoid";
 import type { Layer, Camera, Point, Color } from "@/types";
@@ -25,7 +25,9 @@ export const Canvas = () => {
 
   //Local UI state of the canvas component
   const [drawingOrigin, setDrawingOrigin] = useState<Point | null>(null);
+
   const activeTool = useUIStore((state) => state.activeTool);
+  const setActiveTool = useUIStore((state) => state.setActiveTool);
 
   const insertLayer = useMutation((mutation, newLayer: Layer) => {
     const { storage } = mutation;
@@ -39,6 +41,17 @@ export const Canvas = () => {
       newLayers.set(newLayer.id, newLayer);
       storage.set("layers", newLayers);
       storage.set("selectedLayerId", newLayer.id);
+    }
+  }, []);
+
+  const deleteLayer = useMutation((mutation) => {
+    const { storage } = mutation;
+    const liveLayers = storage.get("layers");
+    const selectedLayer = storage.get("selectedLayerId");
+
+    if (selectedLayer) {
+      liveLayers.delete(selectedLayer);
+      storage.set("selectedLayerId", null); // De-select after deleting
     }
   }, []);
 
@@ -61,6 +74,22 @@ export const Canvas = () => {
     },
     [selectedLayerId]
   );
+
+  useEffect(() => {
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.key === "Delete" || e.key === "Backspace") {
+        deleteLayer();
+      }
+    };
+
+    // Add the event listener to the window
+    window.addEventListener("keyup", handleKeyUp);
+
+    // Cleanup the event listener when the component unmounts
+    return () => {
+      window.removeEventListener("keyup", handleKeyUp);
+    };
+  }, [deleteLayer]);
 
   const setCanvasInteractionMode = useMutation((mutation, mode) => {
     mutation.storage.set("mode", mode);
@@ -91,6 +120,7 @@ export const Canvas = () => {
             value: "",
           };
           insertLayer(newTextLayer);
+          setActiveTool("Selection");
           setCanvasInteractionMode("IDLE");
         }
         break;

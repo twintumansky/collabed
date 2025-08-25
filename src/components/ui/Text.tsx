@@ -40,7 +40,7 @@ export const Text = ({ layer }: TextProps) => {
       width={width}
       height={height}
       style={{
-        outline: "1px solid transparent",
+        outline: "1px solid #9acbff",
       }}
     >
       <textarea

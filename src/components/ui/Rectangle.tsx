@@ -39,7 +39,7 @@ export const Rectangle = ({ layer }: RectangleProps) => {
       width={width}
       height={height}
       fill={`rgb(${fill.r}, ${fill.g}, ${fill.b})`}
-      stroke={isSelected ? "#007AFF" : "black"}
+      stroke={isSelected ? "#9acbff" : "black"}
       strokeWidth="1"
     />
   );
