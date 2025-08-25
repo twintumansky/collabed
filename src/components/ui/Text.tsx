@@ -14,15 +14,10 @@ export const Text = ({ layer }: TextProps) => {
     (mutation, newValue: string) => {
       const { storage } = mutation;
       const liveLayers = storage.get("layers");
+      const textLayer = liveLayers.get(id);
 
-      // Get the specific layer object
-      const layer = liveLayers.get(id);
-
-      // If the layer exists, call .update() on it to change a property
-      if (layer) {
-        const updatedLayer = { ...layer, value: newValue };
-
-        // Use .set() on the parent LiveMap to replace the old layer
+      if (textLayer) {
+        const updatedLayer = { ...textLayer, value: newValue };
         liveLayers.set(id, updatedLayer);
       }
     },
@@ -45,7 +40,7 @@ export const Text = ({ layer }: TextProps) => {
       width={width}
       height={height}
       style={{
-        outline: "1px solid transparent", // Add styling as needed
+        outline: "1px solid transparent",
       }}
     >
       <textarea

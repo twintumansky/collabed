@@ -79,8 +79,20 @@ export const Canvas = () => {
         break;
 
       case "Text":
-        setDrawingOrigin(originPoint);
-        setCanvasInteractionMode("DRAWING");
+        {
+          const newTextLayer = {
+            id: nanoid(),
+            type: "Text" as const,
+            x: originPoint.x,
+            y: originPoint.y,
+            width: 150,
+            height: 30,
+            fill: { r: 0, g: 0, b: 0 } as Color,
+            value: "",
+          };
+          insertLayer(newTextLayer);
+          setCanvasInteractionMode("IDLE");
+        }
         break;
       // If the selection tool is active, clicking the background
       // could clear the selection in the future. For now, it does nothing.
@@ -120,27 +132,29 @@ export const Canvas = () => {
           }
           break;
 
-        case "Text": {
-          const textWidth = width > 5 ? width : 150;
-          const textHeight = height > 5 ? height : 30;
-          const newText = {
-            id: nanoid(),
-            type: "Text" as const,
-            x: Math.min(drawingOrigin.x, endPoint.x),
-            y: Math.min(drawingOrigin.y, endPoint.y),
-            width: textWidth,
-            height: textHeight,
-            fill: { r: 0, g: 0, b: 0 } as Color,
-            value: "",
-          };
-          insertLayer(newText);
-          break;
-        }
+        // case "Text": {
+        //   const textWidth = width > 5 ? width : 150;
+        //   const textHeight = height > 5 ? height : 30;
+        //   const newText = {
+        //     id: nanoid(),
+        //     type: "Text" as const,
+        //     x: Math.min(drawingOrigin.x, endPoint.x),
+        //     y: Math.min(drawingOrigin.y, endPoint.y),
+        //     width: textWidth,
+        //     height: textHeight,
+        //     fill: { r: 0, g: 0, b: 0 } as Color,
+        //     value: "",
+        //   };
+        //   insertLayer(newText);
+        //   break;
+        // }
       }
     }
 
     setDrawingOrigin(null);
-    setCanvasInteractionMode("IDLE");
+    if (canvasMode === "DRAWING" || canvasMode === "TRANSLATING") {
+      setCanvasInteractionMode("IDLE");
+    }
   };
 
   const handleWheel = (e: React.WheelEvent) => {
