@@ -34,8 +34,19 @@ export type RectangleLayer = {
   value?: string;
 };
 
+export type TextLayer = {
+  id: string;
+  type: "Text";
+  x: number;
+  y: number;
+  height: number;
+  width: number;
+  fill: Color;
+  value?: string;
+}
+
 //a union of all possible layer types in the canvas
-export type Layer = RectangleLayer;
+export type Layer = RectangleLayer | TextLayer;
 
 //represents a specific point on the canvas
 export type Point = {

@@ -2,7 +2,7 @@ import { LiveMap } from "@liveblocks/client";
 import { useState } from "react";
 import { useStorage, useMutation } from "@/liveblocks.config";
 import { nanoid } from "nanoid";
-import type { Layer, Camera, Point, RectangleLayer, Color } from "@/types";
+import type { Layer, Camera, Point, Color } from "@/types";
 import { Layer as LayerComponent } from "./Layer";
 import { useUIStore } from "@/store/useUIStore";
 
@@ -27,7 +27,7 @@ export const Canvas = () => {
   const [drawingOrigin, setDrawingOrigin] = useState<Point | null>(null);
   const activeTool = useUIStore((state) => state.activeTool);
 
-  const insertLayer = useMutation((mutation, newLayer: RectangleLayer) => {
+  const insertLayer = useMutation((mutation, newLayer: Layer) => {
     const { storage } = mutation;
     const liveLayers = storage.get("layers");
     if (liveLayers) {
@@ -66,12 +66,9 @@ export const Canvas = () => {
     mutation.storage.set("mode", mode);
   }, []);
 
-  const updateCamera = useMutation(
-    (mutation, newPosition: Point) => {
-      mutation.storage.set("camera", newPosition);
-    },
-    []
-  );
+  const updateCamera = useMutation((mutation, newPosition: Point) => {
+    mutation.storage.set("camera", newPosition);
+  }, []);
 
   const handlePointerDown = (e: React.PointerEvent) => {
     const originPoint = getCoordinates(e, camera!);
@@ -80,7 +77,11 @@ export const Canvas = () => {
         setDrawingOrigin(originPoint);
         setCanvasInteractionMode("DRAWING");
         break;
-      
+
+      case "Text":
+        setDrawingOrigin(originPoint);
+        setCanvasInteractionMode("DRAWING");
+        break;
       // If the selection tool is active, clicking the background
       // could clear the selection in the future. For now, it does nothing.
       case "Selection":
@@ -103,17 +104,38 @@ export const Canvas = () => {
       const width = Math.abs(endPoint.x - drawingOrigin.x);
       const height = Math.abs(endPoint.y - drawingOrigin.y);
 
-      if (width > 5 && height > 5) {
-        const newLayer = {
-          id: nanoid(),
-          type: "Rectangle" as const,
-          x: Math.min(drawingOrigin.x, endPoint.x),
-          y: Math.min(drawingOrigin.y, endPoint.y),
-          width,
-          height,
-          fill: { r: 243, g: 244, b: 246 } as Color,
-        };
-        insertLayer(newLayer);
+      switch (activeTool) {
+        case "Rectangle":
+          if (width > 5 && height > 5) {
+            const newLayer = {
+              id: nanoid(),
+              type: "Rectangle" as const,
+              x: Math.min(drawingOrigin.x, endPoint.x),
+              y: Math.min(drawingOrigin.y, endPoint.y),
+              width,
+              height,
+              fill: { r: 243, g: 244, b: 246 } as Color,
+            };
+            insertLayer(newLayer);
+          }
+          break;
+
+        case "Text": {
+          const textWidth = width > 5 ? width : 150;
+          const textHeight = height > 5 ? height : 30;
+          const newText = {
+            id: nanoid(),
+            type: "Text" as const,
+            x: Math.min(drawingOrigin.x, endPoint.x),
+            y: Math.min(drawingOrigin.y, endPoint.y),
+            width: textWidth,
+            height: textHeight,
+            fill: { r: 0, g: 0, b: 0 } as Color,
+            value: "",
+          };
+          insertLayer(newText);
+          break;
+        }
       }
     }
 
@@ -123,7 +145,7 @@ export const Canvas = () => {
 
   const handleWheel = (e: React.WheelEvent) => {
     e.preventDefault(); // Prevent the whole page from scrolling
-    
+
     // e.deltaX and e.deltaY represent the scroll amount
     updateCamera({
       x: camera!.x - e.deltaX,
@@ -148,9 +170,7 @@ export const Canvas = () => {
         onPointerUp={handlePointerUp}
         onWheel={handleWheel}
       >
-        <g
-        style={{ transform: `translate(${camera!.x}px, ${camera!.y}px)` }}
-        >
+        <g style={{ transform: `translate(${camera!.x}px, ${camera!.y}px)` }}>
           {layersArray!.map((layer) => (
             <LayerComponent key={layer.id} layer={layer} />
           ))}
