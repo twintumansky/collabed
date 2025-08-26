@@ -14,12 +14,14 @@ export const Text = ({ layer }: TextProps) => {
 
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const activeTool = useUIStore((state) => state.activeTool);
+  // const selectedLayerId = useStorage((root) => root.selectedLayerId);
+  // const isSelected = layer.id === selectedLayerId;
 
   const setSelectedLayer = useMutation(
     (mutation, layerId: string) => {
       const { storage } = mutation;
       storage.set("selectedLayerId", layerId);
-      storage.set("mode", "TRANSLATING");
+      // storage.set("mode", "TRANSLATING");
     },
     []
   );
@@ -73,6 +75,8 @@ export const Text = ({ layer }: TextProps) => {
       y={y}
       width={width}
       height={height}
+      // stroke={isSelected ? "#007AFF" : "black"}
+      strokeWidth="1"
       onPointerDown={handlePointerDown}
       onDoubleClick={handleDoubleClick}
       style={{
@@ -82,14 +86,27 @@ export const Text = ({ layer }: TextProps) => {
     >
       <textarea
         ref={textAreaRef}
-        disabled={!isEditing}
-        className="h-full w-full resize-none border-none bg-transparent p-1 text-center text-lg focus:outline-none"
+        readOnly={!isEditing}
+        className="h-full w-full resize-none border-none bg-transparent p-1 text-center text-base focus:outline-none"
         style={{
           color: `rgb(${fill.r}, ${fill.g}, ${fill.b})`,
         }}
         value={text}
         onChange={handleContentChange}
         onBlur={handleBlur}
+        onDoubleClick={(e) => {
+          e.stopPropagation();
+          setIsEditing(true);
+        }}
+        onPointerDown={(e)=> {
+          if (isEditing) e.stopPropagation();
+        }}
+        onPointerMove={(e) => {
+          if (isEditing) e.stopPropagation();
+        }}
+        onPointerUp={(e) => {
+          if (isEditing) e.stopPropagation();
+        }}
       />
     </foreignObject>
   );

@@ -77,15 +77,23 @@ export const Canvas = () => {
 
   useEffect(() => {
     const handleKeyUp = (e: KeyboardEvent) => {
+      const active = document.activeElement as HTMLElement | null;
+
+      const isEditing =
+        !!active &&
+        (((active.tagName === "TEXTAREA" || active.tagName === "INPUT") &&
+          // Suppress only if the field is actually editable
+          !(active as HTMLTextAreaElement | HTMLInputElement).readOnly) ||
+          active.isContentEditable);
+
+      if (isEditing) return;
+
       if (e.key === "Delete" || e.key === "Backspace") {
         deleteLayer();
       }
     };
 
-    // Add the event listener to the window
     window.addEventListener("keyup", handleKeyUp);
-
-    // Cleanup the event listener when the component unmounts
     return () => {
       window.removeEventListener("keyup", handleKeyUp);
     };
@@ -110,12 +118,12 @@ export const Canvas = () => {
       case "Circle":
         setDrawingOrigin(originPoint);
         setCanvasInteractionMode("DRAWING");
-        break;  
+        break;
 
       case "Triangle":
         setDrawingOrigin(originPoint);
         setCanvasInteractionMode("DRAWING");
-        break;    
+        break;
 
       case "Text":
         {
@@ -125,7 +133,7 @@ export const Canvas = () => {
             x: originPoint.x,
             y: originPoint.y,
             width: 150,
-            height: 30,
+            height: 35,
             fill: { r: 0, g: 0, b: 0 } as Color,
             value: "",
           };
@@ -144,6 +152,7 @@ export const Canvas = () => {
 
   const handlePointerMove = (e: React.PointerEvent) => {
     e.preventDefault();
+
     if (canvasMode === "TRANSLATING" && selectedLayerId) {
       const updatedLayerPosition = getCoordinates(e, camera!);
       moveLayer(updatedLayerPosition);
@@ -187,7 +196,7 @@ export const Canvas = () => {
             };
             insertLayer(newLayer);
           }
-          break;  
+          break;
 
         case "Triangle": {
           if (width > 5 && height > 5) {
@@ -203,24 +212,7 @@ export const Canvas = () => {
             insertLayer(newLayer);
           }
           break;
-        }  
-
-        // case "Text": {
-        //   const textWidth = width > 5 ? width : 150;
-        //   const textHeight = height > 5 ? height : 30;
-        //   const newText = {
-        //     id: nanoid(),
-        //     type: "Text" as const,
-        //     x: Math.min(drawingOrigin.x, endPoint.x),
-        //     y: Math.min(drawingOrigin.y, endPoint.y),
-        //     width: textWidth,
-        //     height: textHeight,
-        //     fill: { r: 0, g: 0, b: 0 } as Color,
-        //     value: "",
-        //   };
-        //   insertLayer(newText);
-        //   break;
-        // }
+        }
       }
     }
 
