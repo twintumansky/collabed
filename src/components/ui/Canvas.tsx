@@ -107,6 +107,16 @@ export const Canvas = () => {
         setCanvasInteractionMode("DRAWING");
         break;
 
+      case "Circle":
+        setDrawingOrigin(originPoint);
+        setCanvasInteractionMode("DRAWING");
+        break;  
+
+      case "Triangle":
+        setDrawingOrigin(originPoint);
+        setCanvasInteractionMode("DRAWING");
+        break;    
+
       case "Text":
         {
           const newTextLayer = {
@@ -161,6 +171,39 @@ export const Canvas = () => {
             insertLayer(newLayer);
           }
           break;
+
+        case "Circle":
+          if (width > 5 && height > 5) {
+            const r = Math.min(width, height) / 2;
+            const newLayer = {
+              id: nanoid(),
+              type: "Circle" as const,
+              r,
+              x: drawingOrigin.x + r * Math.sign(endPoint.x - drawingOrigin.x),
+              y: drawingOrigin.y + r * Math.sign(endPoint.y - drawingOrigin.y),
+              width,
+              height,
+              fill: { r: 243, g: 244, b: 246 } as Color,
+            };
+            insertLayer(newLayer);
+          }
+          break;  
+
+        case "Triangle": {
+          if (width > 5 && height > 5) {
+            const newLayer = {
+              id: nanoid(),
+              type: "Triangle" as const,
+              x: Math.min(drawingOrigin.x, endPoint.x),
+              y: Math.min(drawingOrigin.y, endPoint.y),
+              width,
+              height,
+              fill: { r: 243, g: 244, b: 246 } as Color,
+            };
+            insertLayer(newLayer);
+          }
+          break;
+        }  
 
         // case "Text": {
         //   const textWidth = width > 5 ? width : 150;

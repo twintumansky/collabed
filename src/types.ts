@@ -21,11 +21,34 @@ export type Camera = {
 };
 
 //different layer types we have that we can add to the canvas
-export type LayerType = "Selection" | "Shapes" | "Rectangle" | "Circle" | "Triangle" | "Text" | "Note";
+export type LayerType = "Selection" | "Shapes" | "Rectangle" | "Circle" | "Triangle" | "Path" | "Text" | "Note";
 
 export type RectangleLayer = {
   id: string;
   type: "Rectangle";
+  x: number;
+  y: number;
+  height: number;
+  width: number;
+  fill: Color;
+  value?: string;
+};
+
+export type CircleLayer = {
+  id: string;
+  type: "Circle";
+  x: number;
+  y: number;
+  r: number;
+  height: number;
+  width: number;
+  fill: Color;
+  value?: string;
+};
+
+export type TriangleLayer = {
+  id: string;
+  type: "Triangle";
   x: number;
   y: number;
   height: number;
@@ -46,7 +69,7 @@ export type TextLayer = {
 }
 
 //a union of all possible layer types in the canvas
-export type Layer = RectangleLayer | TextLayer;
+export type Layer = RectangleLayer | CircleLayer | TriangleLayer | TextLayer;
 
 //represents a specific point on the canvas
 export type Point = {

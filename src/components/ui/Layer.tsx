@@ -1,5 +1,7 @@
 import type { Layer as LayerType } from "@/types";
 import { Rectangle } from "./Rectangle";
+import { Circle } from "./Circle";
+import { Triangle } from "./Triangle";
 import { Text } from "./Text";
 
 interface LayerProps {
@@ -14,7 +16,13 @@ export const Layer = ({ layer }: LayerProps) => {
     case "Text":
       return <Text layer={layer} />;
 
-    default:
+    case "Circle":
+      return <Circle layer={layer} />;  
+
+    case "Triangle":
+      return <Triangle layer={layer} />;   
+      
+    default:  
       console.warn("Unknown layer type");
       return null;
   }
