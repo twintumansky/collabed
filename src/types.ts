@@ -21,7 +21,7 @@ export type Camera = {
 };
 
 //different layer types we have that we can add to the canvas
-export type LayerType = "Selection" | "Shapes" | "Rectangle" | "Circle" | "Triangle" | "Path" | "Text" | "Note";
+export type LayerType = "Selection" | "Shapes" | "Rectangle" | "Circle" | "Triangle" | "Path" | "Text" | "Note" | "ColorPicker";
 
 export type RectangleLayer = {
   id: string;

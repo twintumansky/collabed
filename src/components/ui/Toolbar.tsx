@@ -1,7 +1,7 @@
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Cursor02Icon,
-  Txt02Icon,
+  TextIcon,
   StickyNote03Icon,
 } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
@@ -58,7 +58,7 @@ export const Toolbar = () => {
         onClick={() => setActiveTool("Text")}
       >
         <HugeiconsIcon
-          icon={Txt02Icon}
+          icon={TextIcon}
           size={24}
           color="currentColor"
           strokeWidth={1.5}
