@@ -241,13 +241,20 @@ export const Canvas = () => {
   }
 
   return (
-    <main className="h-full w-full bg-neutral-100 touch-none">
+    <main className="h-full w-full bg-neutral-100 touch-none" style={{ userSelect: 'none' }}>
       <svg
         className="h-full w-full"
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onWheel={handleWheel}
+        onDoubleClick={(e) => e.preventDefault()} // Prevent double-click text selection
+        style={{
+          userSelect: 'none', // Prevent text selection
+          WebkitUserSelect: 'none', // Safari
+          MozUserSelect: 'none', // Firefox
+          msUserSelect: 'none', // IE/Edge
+        }}
       >
         <g style={{ transform: `translate(${camera!.x}px, ${camera!.y}px)` }}>
           {layersArray!.map((layer) => (

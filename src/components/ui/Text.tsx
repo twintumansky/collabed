@@ -14,17 +14,11 @@ export const Text = ({ layer }: TextProps) => {
 
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const activeTool = useUIStore((state) => state.activeTool);
-  // const selectedLayerId = useStorage((root) => root.selectedLayerId);
-  // const isSelected = layer.id === selectedLayerId;
 
-  const setSelectedLayer = useMutation(
-    (mutation, layerId: string) => {
-      const { storage } = mutation;
-      storage.set("selectedLayerId", layerId);
-      // storage.set("mode", "TRANSLATING");
-    },
-    []
-  );
+  const setSelectedLayer = useMutation((mutation, layerId: string) => {
+    const { storage } = mutation;
+    storage.set("selectedLayerId", layerId);
+  }, []);
 
   const updateText = useMutation(
     (mutation, newValue: string) => {
@@ -47,6 +41,10 @@ export const Text = ({ layer }: TextProps) => {
     }
   }, [isEditing]);
 
+  const setCanvasInteractionMode = useMutation((mutation, mode) => {
+    mutation.storage.set("mode", mode);
+  }, []);
+
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setText(e.target.value);
   };
@@ -66,6 +64,9 @@ export const Text = ({ layer }: TextProps) => {
     if (activeTool === "Selection") {
       e.stopPropagation();
       setSelectedLayer(id);
+      if (!isEditing) {
+        setCanvasInteractionMode("TRANSLATING");
+      }
     }
   };
 
@@ -90,6 +91,9 @@ export const Text = ({ layer }: TextProps) => {
         className="h-full w-full resize-none border-none bg-transparent p-1 text-center text-base focus:outline-none"
         style={{
           color: `rgb(${fill.r}, ${fill.g}, ${fill.b})`,
+          // Prevent pointer events and focus when not editing
+          pointerEvents: isEditing ? "auto" : "none",
+          userSelect: isEditing ? "text" : "none",
         }}
         value={text}
         onChange={handleContentChange}
@@ -98,14 +102,42 @@ export const Text = ({ layer }: TextProps) => {
           e.stopPropagation();
           setIsEditing(true);
         }}
-        onPointerDown={(e)=> {
-          if (isEditing) e.stopPropagation();
+        onKeyDown={(e) => {
+          if (isEditing && (e.key === "Backspace" || e.key === "Delete")) {
+            e.stopPropagation();
+          }
+        }}
+        // Stop all pointer events when not editing to prevent unintended focus/selection
+        onPointerDown={(e) => {
+          if (!isEditing) {
+            e.preventDefault();
+            e.stopPropagation();
+          } else {
+            e.stopPropagation();
+          }
         }}
         onPointerMove={(e) => {
-          if (isEditing) e.stopPropagation();
+          if (!isEditing) {
+            e.preventDefault();
+            e.stopPropagation();
+          } else {
+            e.stopPropagation();
+          }
         }}
         onPointerUp={(e) => {
-          if (isEditing) e.stopPropagation();
+          if (!isEditing) {
+            e.preventDefault();
+            e.stopPropagation();
+          } else {
+            e.stopPropagation();
+          }
+        }}
+        onFocus={(e) => {
+          // Prevent unintended focus when not editing
+          if (!isEditing) {
+            e.preventDefault();
+            e.currentTarget.blur();
+          }
         }}
       />
     </foreignObject>
