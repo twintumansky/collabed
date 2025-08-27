@@ -15,20 +15,23 @@ const getCoordinates = (e: React.PointerEvent, camera: Camera): Point => {
 };
 
 export const Canvas = () => {
-  //Reading from Liveblocks storage instead of zustand store
+  //Reading from Liveblocks storage
   const layers = useStorage((root) => root.layers);
   const selectedLayerId = useStorage((root) => root.selectedLayerId);
   const camera = useStorage((root) => root.camera);
   const canvasMode = useStorage((root) => root.mode);
-  //Array.from method because it creates a new refrence evrytime the layers LiveMap changes
+
+  //craeting an array with new refrences everytime the layers<LiveMap> gets modified
   const layersArray = useStorage((root) => Array.from(root.layers.values()));
 
   //Local UI state of the canvas component
   const [drawingOrigin, setDrawingOrigin] = useState<Point | null>(null);
 
+  //reading global states from Zustand store
   const activeTool = useUIStore((state) => state.activeTool);
   const setActiveTool = useUIStore((state) => state.setActiveTool);
 
+  //inserting a Layer(shape) into the canvas through Liveblocks
   const insertLayer = useMutation((mutation, newLayer: Layer) => {
     const { storage } = mutation;
     const liveLayers = storage.get("layers");
@@ -44,6 +47,7 @@ export const Canvas = () => {
     }
   }, []);
 
+  //deleting a Layer(shape) from the canvas through Liveblocks
   const deleteLayer = useMutation((mutation) => {
     const { storage } = mutation;
     const liveLayers = storage.get("layers");
@@ -55,6 +59,7 @@ export const Canvas = () => {
     }
   }, []);
 
+  //dragging a Layer(shape) in the canvas
   const moveLayer = useMutation(
     (mutation, position: Point) => {
       const { storage } = mutation;
@@ -75,6 +80,7 @@ export const Canvas = () => {
     [selectedLayerId]
   );
 
+  //handling deletion of layer(shape) through keyboard events
   useEffect(() => {
     const handleKeyUp = (e: KeyboardEvent) => {
       const active = document.activeElement as HTMLElement | null;
@@ -241,7 +247,10 @@ export const Canvas = () => {
   }
 
   return (
-    <main className="h-full w-full bg-neutral-100 touch-none" style={{ userSelect: 'none' }}>
+    <main
+      className="h-full w-full bg-neutral-100 touch-none"
+      style={{ userSelect: "none" }}
+    >
       <svg
         className="h-full w-full"
         onPointerDown={handlePointerDown}
@@ -250,10 +259,10 @@ export const Canvas = () => {
         onWheel={handleWheel}
         onDoubleClick={(e) => e.preventDefault()} // Prevent double-click text selection
         style={{
-          userSelect: 'none', // Prevent text selection
-          WebkitUserSelect: 'none', // Safari
-          MozUserSelect: 'none', // Firefox
-          msUserSelect: 'none', // IE/Edge
+          userSelect: "none", // Prevent text selection
+          WebkitUserSelect: "none", // Safari
+          MozUserSelect: "none", // Firefox
+          msUserSelect: "none", // IE/Edge
         }}
       >
         <g style={{ transform: `translate(${camera!.x}px, ${camera!.y}px)` }}>
