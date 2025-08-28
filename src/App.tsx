@@ -8,10 +8,36 @@ import {
 import { LiveMap } from "@liveblocks/client";
 import { Room } from "./Room";
 
+const COLORS = ["#C98E40", "#059669", "#457CC4", "#6F9C4F", "#E6CB63" ];
+
+function getRandomName() {
+  const firstName = ["Brave", "Clever", "Swift", "Wise", "Bold", "Kind"];
+  const lastName = ["Shark", "Eagle", "Elephant", "Wolf", "Bear", "Tiger"];
+  return `${firstName[Math.floor(Math.random() * firstName.length)]} ${lastName[Math.floor(Math.random() * lastName.length)]}`
+}
+
+function getRandomColor() {
+  return COLORS[Math.floor(Math.random() * COLORS.length)];
+}
+
 const App: React.FC = () => {
   return (
     <LiveblocksProvider
-      publicApiKey={import.meta.env.VITE_LIVEBLOCKS_PUBLIC_KEY}
+      // publicApiKey={import.meta.env.VITE_LIVEBLOCKS_PUBLIC_KEY}
+      authEndpoint={ async (room) => {
+        const response = await fetch("/api/liveblocks-auth", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({
+            room,
+            userInfo: {
+              name: getRandomName(),
+              color: getRandomColor(),
+            },
+          }),
+        });
+        return await response.json();
+      }}
     >
       <RoomProvider
         id="canavs-room-test-3"

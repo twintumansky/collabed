@@ -4,10 +4,10 @@ import { ColorsIcon } from "@hugeicons/core-free-icons";
 import { useUIStore } from "@/store/useUIStore";
 import { useState } from "react";
 import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-  } from "@/components/ui/popover";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -29,18 +29,18 @@ const ColorButton = ({
       className={cn(
         "w-6 h-6 rounded-full border border-neutral-300",
         // Add a ring for the active/selected state
-        isActive && "ring-2 ring-blue-500" 
+        isActive && "ring-2 ring-blue-300"
       )}
-      style={{background: `rgb(${color.r}, ${color.g}, ${color.b})`}}
+      style={{ background: `rgb(${color.r}, ${color.g}, ${color.b})` }}
       onClick={() => onClick(color)}
     />
   );
 };
 
 export const ColorPicker = ({ onChange }: ColorPickerProps) => {
-    const { activeTool, setActiveTool } = useUIStore();
+  const { activeTool, setActiveTool } = useUIStore();
   const colors: Color[] = [
-    { r: 0, g: 0, b: 0 },
+    { r: 243, g: 244, b: 246 },
     { r: 255, g: 246, b: 181 },
     { r: 247, g: 211, b: 176 },
     { r: 173, g: 240, b: 249 },
@@ -54,7 +54,7 @@ export const ColorPicker = ({ onChange }: ColorPickerProps) => {
   const handleColorSelect = (color: Color) => {
     setSelectedColor(color);
     onChange(color);
-  }
+  };
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -73,23 +73,20 @@ export const ColorPicker = ({ onChange }: ColorPickerProps) => {
       </PopoverTrigger>
       <PopoverContent className="w-auto p-2">
         <div className="grid grid-cols-4 gap-2">
-        {colors.map((color) => (
-        <ColorButton
-          key={`${color.r}-${color.g}-${color.b}`}
-          color={color}
-          onClick={handleColorSelect}
-          isActive={
-            selectedColor.r === color.r &&
-            selectedColor.g === color.g &&
-            selectedColor.b === color.b
-          }
-        />
-      ))}
+          {colors.map((color) => (
+            <ColorButton
+              key={`${color.r}-${color.g}-${color.b}`}
+              color={color}
+              onClick={handleColorSelect}
+              isActive={
+                selectedColor.r === color.r &&
+                selectedColor.g === color.g &&
+                selectedColor.b === color.b
+              }
+            />
+          ))}
         </div>
       </PopoverContent>
     </Popover>
-
-      
-    
   );
 };
