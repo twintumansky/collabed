@@ -7,6 +7,8 @@ import {
 } from "@liveblocks/react/suspense";
 import { LiveMap } from "@liveblocks/client";
 import { Room } from "./Room";
+import { Routes, Route } from "react-router-dom";
+import { SignIn, SignUp, SignedIn, SignedOut, RedirectToSignIn } from '@clerk/clerk-react';
 
 const COLORS = ["#C98E40", "#059669", "#457CC4", "#6F9C4F", "#E6CB63" ];
 
@@ -20,7 +22,7 @@ function getRandomColor() {
   return COLORS[Math.floor(Math.random() * COLORS.length)];
 }
 
-const App: React.FC = () => {
+const CollabedApp = () => {
   return (
     <LiveblocksProvider
       // publicApiKey={import.meta.env.VITE_LIVEBLOCKS_PUBLIC_KEY}
@@ -60,6 +62,33 @@ const App: React.FC = () => {
         </ClientSideSuspense>
       </RoomProvider>
     </LiveblocksProvider>
+  );
+}
+
+const SignInPage = () => <div className="h-screen w-screen flex items-center justify-center"><SignIn /></div>;
+const SignUpPage = () => <div className="h-screen w-screen flex items-center justify-center"><SignUp /></div>;
+
+const App: React.FC = () => {
+  return (
+    <Routes>
+      <Route path="/sign-in" element={<SignInPage />} />
+      <Route path="/sign-up" element={<SignUpPage />} />
+      <Route
+        path="/"
+        element={
+          <>
+            <SignedIn>
+              {/* If the user is signed in, show the whiteboard */}
+              <CollabedApp />
+            </SignedIn>
+            <SignedOut>
+              {/* If the user is signed out, redirect to the sign-in page */}
+              <RedirectToSignIn />
+            </SignedOut>
+          </>
+        }
+      />
+    </Routes>
   );
 };
 

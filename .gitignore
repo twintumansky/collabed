@@ -24,7 +24,7 @@ dist-ssr
 *.sw?
 
 # Local environment variables
-.env.local
+.env
 
 # Docs
 docs

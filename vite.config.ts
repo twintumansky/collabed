@@ -10,4 +10,13 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3001', // The address of our new auth server
+        changeOrigin: true,
+      },
+    },
+  },
 });
