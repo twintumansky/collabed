@@ -44,26 +44,26 @@ const CollabedApp = () => {
             throw new Error("No authentication token available");
           }
 
-          // First, test the token with the debug endpoint
-          const debugResponse = await fetch(
-            "http://localhost:3001/api/debug-token",
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-              },
-              body: JSON.stringify({ room }),
-            }
-          );
+          // // First, test the token with the debug endpoint
+          // const debugResponse = await fetch(
+          //   "http://localhost:3001/api/debug-token",
+          //   {
+          //     method: "POST",
+          //     headers: {
+          //       "Content-Type": "application/json",
+          //       Authorization: `Bearer ${token}`,
+          //     },
+          //     body: JSON.stringify({ room }),
+          //   }
+          // );
 
-          console.log("Debug response status:", debugResponse.status);
-          const debugData = await debugResponse.json();
-          console.log("Debug response:", debugData);
+          // console.log("Debug response status:", debugResponse.status);
+          // const debugData = await debugResponse.json();
+          // console.log("Debug response:", debugData);
 
-          if (!debugResponse.ok) {
-            throw new Error(`Debug failed: ${debugData.error}`);
-          }
+          // if (!debugResponse.ok) {
+          //   throw new Error(`Debug failed: ${debugData.error}`);
+          // }
 
           const response = await fetch(
             "http://localhost:3001/api/liveblocks-auth",

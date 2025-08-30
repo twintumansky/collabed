@@ -2,7 +2,7 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import { Liveblocks } from "@liveblocks/node";
-import { ClerkExpressRequireAuth } from "@clerk/clerk-sdk-node";
+import { clerkMiddleware, requireAuth, getAuth } from "@clerk/express";
 
 const app = express();
 const port = 3001;
@@ -28,6 +28,9 @@ console.log(
 // Middleware setup
 app.use(cors());
 app.use(express.json());
+
+// Initialize Clerk middleware - this attaches auth to req.auth
+app.use(clerkMiddleware());
 
 // Debug endpoint to test token verification
 // app.post("/api/debug-token", async (req, res) => {
@@ -61,18 +64,12 @@ app.use(express.json());
 // The main auth endpoint with better error handling
 app.post(
   "/api/liveblocks-auth",
-  ClerkExpressRequireAuth({
-    secretKey: clerkSecretKey,
-    clockTolerance: 120,
-  }),
+  requireAuth(),
   async (req, res) => {
     try {
       // Add detailed logging to see what's happening
       console.log("=== Auth Endpoint Called ===");
       console.log("Request body:", req.body);
-
-      console.log("req.auth:", req.auth);
-      console.log("req.auth.user:", req.auth?.user);
       
       // const authHeader = req.headers.authorization;
     
@@ -95,23 +92,23 @@ app.post(
     // const userId = payload.sub; // sub contains the user ID
     // console.log("User ID extracted:", userId);
 
-    if (!req.auth || !req.auth.user) {
-      console.error("Authentication failed - no user data");
-      return res.status(403).json({ 
-        error: "User not authenticated",
-        auth: req.auth,
-        hasAuth: !!req.auth,
-        hasUser: !!(req.auth && req.auth.user)
-      });
-    }
+    // if (!req.auth || !req.auth.user) {
+    //   console.error("Authentication failed - no user data");
+    //   return res.status(403).json({ 
+    //     error: "User not authenticated",
+    //     auth: req.auth,
+    //     hasAuth: !!req.auth,
+    //     hasUser: !!(req.auth && req.auth.user)
+    //   });
+    // }
 
-    const user = req.auth.user;
-    console.log("User authenticated successfully:", {
-      id: user.id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.emailAddresses?.[0]?.emailAddress
-    });
+    // const user = req.auth.user;
+    // console.log("User authenticated successfully:", {
+    //   id: user.id,
+    //   firstName: user.firstName,
+    //   lastName: user.lastName,
+    //   email: user.emailAddresses?.[0]?.emailAddress
+    // });
 
       // Prepare a Liveblocks session
       // const session = liveblocks.prepareSession(userId, {
@@ -122,11 +119,31 @@ app.post(
       //   },
       // });
 
-      const session = liveblocks.prepareSession(user.id, {
+      const { userId } = getAuth(req);
+      
+      if (!userId) {
+        console.error("Authentication failed - no userId");
+        return res.status(403).json({ 
+          error: "User not authenticated",
+          auth: req.auth
+        });
+      }
+
+      console.log("User authenticated successfully, ID:", userId);
+
+      // const session = liveblocks.prepareSession(user.id, {
+      //   userInfo: {
+      //     name: `${user.firstName || "Anonymous"} ${user.lastName || "User"}`,
+      //     color: `hsl(${Math.random() * 360}, 95%, 65%)`,
+      //     picture: user.imageUrl || null,
+      //   },
+      // });
+
+      const session = liveblocks.prepareSession(userId, {
         userInfo: {
-          name: `${user.firstName || "Anonymous"} ${user.lastName || "User"}`,
+          name: "Authenticated User", // You can customize this
           color: `hsl(${Math.random() * 360}, 95%, 65%)`,
-          picture: user.imageUrl || null,
+          picture: null,
         },
       });
 
